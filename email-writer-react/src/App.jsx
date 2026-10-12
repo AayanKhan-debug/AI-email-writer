@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import './App.css'
-import { Box, Button, CircularProgress, Container, FormControl, Input, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 
 function App() {
   const [emailContent, setEmailContent] = useState('');
-  const [tone, setTone] = useState('');
+  const [tone, setTone] = useState('Professional');
+  const [length, setLength] = useState('Medium');
   const [generatedReply, setGeneratedReply] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,12 +17,12 @@ function App() {
     try {
       const response = await axios.post("http://localhost:8080/api/email/generate", {
        emailContent,
-       tone 
+       tone,
+       length
       });
       setGeneratedReply(typeof response.data === 'string' ? response.data : JSON.stringify(response.data));
     } catch (error) {
-      setError('Failed to generate eamil reply. Please try again');
-      console.error(error);
+      setError(error.response?.data || 'Failed to generate email reply. Please try again');
     } finally {
       setLoading(false);
     }
@@ -45,15 +46,33 @@ function App() {
           sx={{ mb:2 }}/>
 
           <FormControl fullWidth sx={{ mb:2 }}>
-            <InputLabel>Tone (Optional)</InputLabel>
+            <InputLabel id="tone-label">Tone</InputLabel>
             <Select
-              value={tone || ''}
-              label={"Tone (Optional)"}
+              id="tone"
+              labelId="tone-label"
+              value={tone}
+              label="Tone"
               onChange={(e) => setTone(e.target.value)}>
-                <MenuItem value="">None</MenuItem>
-                <MenuItem value="professional">Professional</MenuItem>
-                <MenuItem value="casual">Casual</MenuItem>
-                <MenuItem value="friendly">Friendly</MenuItem>
+                <MenuItem value="Professional">Professional</MenuItem>
+                <MenuItem value="Friendly">Friendly</MenuItem>
+                <MenuItem value="Formal">Formal</MenuItem>
+                <MenuItem value="Casual">Casual</MenuItem>
+                <MenuItem value="Apologetic">Apologetic</MenuItem>
+                <MenuItem value="Persuasive">Persuasive</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb:2 }}>
+            <InputLabel id="length-label">Reply length</InputLabel>
+            <Select
+              id="reply-length"
+              labelId="length-label"
+              value={length}
+              label="Reply length"
+              onChange={(e) => setLength(e.target.value)}>
+                <MenuItem value="Short">Short — 1–2 concise sentences</MenuItem>
+                <MenuItem value="Medium">Medium — 3–5 sentences</MenuItem>
+                <MenuItem value="Detailed">Detailed — context and next steps</MenuItem>
             </Select>
           </FormControl>
 
